@@ -6,8 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import com.lll.camera_l.R.id;
+
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -18,23 +20,32 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.SurfaceHolder.Callback;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-public class CameraActivity extends Activity {
+public class CameraActivity extends Activity 
+		implements Callback{
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
@@ -48,124 +59,117 @@ public class CameraActivity extends Activity {
     private int mScreenWidth, mScreenHeight;
     public static final String TAG = "mmmm";
 	private Camera mCamera;
-    private CameraPreview mPreview;
+	private SurfaceHolder mHolder;
+	
+	Size mPreviewSize;
+	List<Size> mSupportedPreviewSizes;
     private MediaRecorder mMediaRecorder;
     long waitTime = 2000;    
 	long touchTime = 0;  
 	private int checkItem;
-	Button start;
+	Button vedio;
 	Button captureButton;
+	Button light;
 	private boolean isRecording = false;
+	SurfaceView preview;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		
+		//竖屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		 // �õ���Ļ�Ĵ�С
         WindowManager wManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wManager.getDefaultDisplay();
         mScreenHeight = display.getHeight();
         mScreenWidth = display.getWidth();
-
+        MyClickListener myListener = new MyClickListener();
+        
 //        mCamera = getCameraInstance(mCameraCurrentlyLocked);
         // Create our Preview view and set it as the content of our activity.
-        mPreview = new CameraPreview(this, mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
+        preview = (SurfaceView) findViewById(R.id.camera_preview);
         
-        captureButton = (Button) findViewById(id.button_capture);
-        start = (Button)findViewById(R.id.start);
-        captureButton.setOnClickListener(
-            new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // get an image from the camera
-                    mCamera.takePicture(null, null, mPicture);
-                    Toast.makeText(getApplicationContext(), "Yes", Toast.LENGTH_SHORT).show();
-                }
-            }
-        );
-        start.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Intent intent=new Intent();
-				intent.setClass(CameraActivity.this, CameraVedio.class);
-				startActivity(intent);
-			}
-		});
-	 
+        preview.setOnClickListener(myListener);
+        captureButton = (Button) findViewById(R.id.button_capture);
+        vedio = (Button)findViewById(R.id.vedio);
+        light = (Button)findViewById(R.id.light);
+       
+        captureButton.setOnClickListener(myListener);
+
+        vedio.setOnClickListener(myListener);//vedio
+        light.setOnClickListener(myListener);
+        mHolder = preview.getHolder(); 
         
-//        start.setOnClickListener(
-//        	    new View.OnClickListener() {
-//        	        @Override
-//        	        public void onClick(View v) {
-//        	            if (isRecording) {
-//        	            	//��ӵ�stopPreview
-//        	            	mCamera.stopPreview();
-//        	                // stop recording and release camera
-//        	                mMediaRecorder.stop();  // stop the recording
-//        	                releaseMediaRecorder(); // release the MediaRecorder object
-//        	                mCamera.lock();         // take camera access back from MediaRecorder
-//
-//        	                // inform the user that recording has stopped
-//        	                setStartButtonText("Start");
-//        	                isRecording = false;
-//        	            } else {
-//        	                // initialize video camera
-//        	                if (prepareVideoRecorder()) {
-//        	                	try {
-//									mMediaRecorder.prepare();
-//								} catch (IllegalStateException e) {
-//									// TODO Auto-generated catch block
-//									e.printStackTrace();
-//								} catch (IOException e) {
-//						
-//									// TODO Auto-generated catch block
-//									e.printStackTrace();
-//								}
-//        	                    // Camera is available and unlocked, MediaRecorder is prepared,
-//        	                    // now you can start recording
-//        	                    mMediaRecorder.start();
-//        	                    Toast.makeText(getApplicationContext(), "��ʼ¼��", Toast.LENGTH_SHORT).show();
-//        	                    System.out.println("��ʼ¼��");
-//        	                    // inform the user that recording has started
-//        	                    setStartButtonText("Stop");
-//        	                    isRecording = true;
-//        	                } else {
-//        	                    // prepare didn't work, release the camera
-//        	                    releaseMediaRecorder();
-//        	                    // inform user
-//        	                }
-//        	            }
-//        	        }
-//
-//					private void setStartButtonText(String string) {
-//						// TODO Auto-generated method stub
-//						start.setText(string);
-//					}
-//        	    }
-//        	);
-        // �õ�Ĭ�ϵ����ID
+        mHolder.addCallback(this); 
+        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS); 
+//      
         mDefaultCameraId = getDefaultCameraId();
         mCameraCurrentlyLocked = mDefaultCameraId;
 //        System.out.println("mCameraCurrentlyLocked "+mCameraCurrentlyLocked);
         
+        
 	}
+	 class MyClickListener implements OnClickListener, AutoFocusCallback{
 
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			 switch (v.getId()) {
+			 case R.id.button_capture:
+				  mCamera.takePicture(null, null, mPicture);
+	            Toast.makeText(getApplicationContext(), "Yes", Toast.LENGTH_SHORT).show();
+	            break;
+			 case R.id.camera_preview:
+				 mCamera.autoFocus(this);//自动聚焦
+				 break;
+			 case R.id.vedio:
+				Intent intent=new Intent();
+				intent.setClass(CameraActivity.this, CameraVedio.class);
+				startActivity(intent);
+					break;
+			 case R.id.light:
+				 turnLightOn(mCamera);
+				 if(light.getText()=="On"){
+					 light.setText("Off");
+				 }else{ 
+					turnLightOff(mCamera);
+						 light.setText("On");
+				 }
+				 break;
+				 default:
+					 break;
+			 }
+		}
+
+		@Override
+		public void onAutoFocus(boolean success, Camera camera) {
+			if(success)  
+            {  
+         	    params = camera.getParameters();
+                params.setRotation(90);  
+                camera.setParameters(params);//���������õ��ҵ�camera
+                camera.setDisplayOrientation(90);  
+                }
+			
+		}
+
+		
+		 
+	 }
+	
+	
 	 //˫���˳�
 	@Override  
 	public boolean onKeyDown(int keyCode, KeyEvent event) {  
 	    if(event.getAction() == KeyEvent.ACTION_DOWN && KeyEvent.KEYCODE_BACK == keyCode) {    
-	        long currentTime = System.currentTimeMillis();    
-	        if((currentTime-touchTime)>=waitTime) {    
-	          //  Toast����ʾʱ��͵ȴ�ʱ����ͬ  
-	            Toast.makeText(this, "再按一次退出", (int)waitTime).show();    
-	            touchTime = currentTime;    
-	        }else { 
+//	        long currentTime = System.currentTimeMillis();    
+//	        if((currentTime-touchTime)>=waitTime) {    
+////	        	mPreview.turnLightOff(mCamera);
+//	            Toast.makeText(this, "再按一次退出", (int)waitTime).show();    
+//	            touchTime = currentTime;    
+//	        }else { 
 	        	mCamera.setPreviewCallback(null) ;
 	        	mCamera.stopPreview();
 	        
@@ -173,7 +177,7 @@ public class CameraActivity extends Activity {
 	        	mCamera = null;
 	        	System.out.println("camera release!");
 	        	System.exit(0);
-	        }    
+//	        }    
         return true;    
 	    }    
 	    return super.onKeyDown(keyCode, event);    
@@ -364,7 +368,7 @@ public class CameraActivity extends Activity {
 	    mMediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO).toString());
 
 	    // Step 5: Set the preview output
-	    mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
+	    mMediaRecorder.setPreviewDisplay(mHolder.getSurface());
 
 	    // Step 6: Prepare configured MediaRecorder
 	    try {
@@ -421,20 +425,7 @@ public class CameraActivity extends Activity {
 	    return mediaFile;
 	}
 	
-	//ԭ4API��û����д����
-	 @Override
-	    protected void onResume()
-	    {
-	        
-	        super.onResume();
-	        System.out.println("onResume");
-
-	        // Open the default i.e. the first rear facing camera.
-	        mCamera = getCameraInstance(mCameraCurrentlyLocked);
-	        
-	        mPreview.setCamera(mCamera);
-	    }
-	 
+	
 	  @Override
 	    protected void onPause() {
 	        super.onPause();
@@ -460,6 +451,199 @@ public class CameraActivity extends Activity {
 	            mCamera = null;
 	        }
 	    }
+	    
+	    
+	    Parameters params ;
+
+		private Camera.Size cs;
+		private float psizeheight;
+		private float psizewidth;
+		private float sizeheight;
+		private float sizewidth;
+		@Override
+		public void surfaceChanged(SurfaceHolder holder, int format, int width,
+				int height) {
+			 System.out.println("surface changed");
+	         // If your preview can change or rotate, take care of those events here.
+	         // Make sure to stop the preview before resizing or reformatting it.
+	    
+	         if (null == mHolder.getSurface())
+	         {
+	             // preview surface does not exist
+	             return;
+	         }
+
+	         // stop preview before making changes
+	         try
+	         {
+	             if (null != mCamera)
+	             {
+	                 mCamera.stopPreview();
+	             }
+	         }
+	         catch (Exception e)
+	         {
+	             // ignore: tried to stop a non-existent preview
+	         }
+
+	         // set preview size and make any resize, rotate or
+	         // reformatting changes here
+
+	         if (null != mCamera)
+	         {
+	             params = mCamera.getParameters();
+//	             params.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+	//
+//	             requestLayout();
+	             List<Camera.Size> psizes = params.getSupportedPictureSizes(); 
+		            Camera.Size pcs = (Camera.Size) psizes.get(0); 
+		            psizeheight = pcs.height; 
+		            psizewidth = pcs.width;
+		            params.setPictureSize((int)psizewidth, (int)psizeheight);
+		            float n = psizeheight/psizewidth;
+		          List<Camera.Size> sizes = params.getSupportedPreviewSizes(); 
+		         for (int i = 0; i < sizes.size(); i++) { 
+		            Camera.Size cs = (Camera.Size) sizes.get(i); 
+		             sizeheight = cs.height; 
+		             sizewidth = cs.width; 
+		             if(n == (sizeheight/ sizewidth)){
+		            	params.setPreviewSize((int)sizewidth, (int)sizeheight);
+		            	break;
+		             }
+		         }
+	             params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+	             params.setRotation(90);
+	             mCamera.setParameters(params);
+	             mCamera.setDisplayOrientation(90);
+	             Log.d(TAG, "camera set params successfully!: "
+	                     + params);
+
+	         }
+	         // ���������4���óߴ�
+
+	         // start preview with new settings
+	         try
+	         {
+	             if (null != mCamera)
+	             {
+
+	                 mCamera.setPreviewDisplay(mHolder);
+	                 mCamera.startPreview();
+//	                 turnLightOn(mCamera);
+	                 mCamera.lock();
+	                 System.out.println("camera locked!");
+	             }
+
+	         }
+	         catch (Exception e)
+	         {
+	             Log.d(TAG,
+	                     "Error starting camera preview: " + e.getMessage());
+	         }
+	     
+			
+		}
+
+
+
+		@Override
+		public void surfaceCreated(SurfaceHolder holder) {
+			System.out.println("surfaceCreated");
+	        // The Surface has been created, now tell the camera where to draw the preview.
+	    	 if(mCamera == null)  
+	         {  
+	              mCamera = Camera.open(); 
+	    	      params = mCamera.getParameters();
+	    	      List<Camera.Size> psizes = params.getSupportedPictureSizes(); 
+		            Camera.Size pcs = (Camera.Size) psizes.get(0); 
+		            psizeheight = pcs.height; 
+		            psizewidth = pcs.width;
+		            params.setPictureSize((int)psizewidth, (int)psizeheight);
+		            float n = psizeheight/psizewidth;
+		          List<Camera.Size> sizes = params.getSupportedPreviewSizes(); 
+		         for (int i = 0; i < sizes.size(); i++) { 
+		            Camera.Size cs = (Camera.Size) sizes.get(i); 
+		             sizeheight = cs.height; 
+		             sizewidth = cs.width; 
+		             if(n == (sizeheight/ sizewidth)){
+		            	params.setPreviewSize((int)sizewidth, (int)sizeheight);
+		            	break;
+		             }
+		         }
+//	    	      params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+	              mCamera.setParameters(params);
+	    	   }
+	    	try {
+	        	
+	            mCamera.setPreviewDisplay(holder);
+	            mCamera.startPreview();
+//	            turnLightOn(mCamera);
+
+	        } catch (IOException e) {
+	            Log.d(TAG, "Error setting camera preview: " + e.getMessage());
+	        }
+			
+		}
+
+
+
+		@Override
+		public void surfaceDestroyed(SurfaceHolder holder) {
+			 System.out.println("surfaceDestroyed"); 
+			
+		}
 	   
+		public static void turnLightOn(Camera mCamera) {
+		  	  if (mCamera == null) {
+		  	   return;
+		  	  }
+		  	  Parameters params = mCamera.getParameters();
+		  
+		  	  if (params == null) {
+		  	   return;
+		  	  }
+		  	List<String> flashModes = params.getSupportedFlashModes();
+		  	  // Check if camera flash exists
+		  	  if (flashModes == null) {
+		  	   // Use the screen as a flashlight (next best thing)
+		  	   return;
+		  	  }
+		  	  String flashMode = params.getFlashMode();
+		  	  if (!params.FLASH_MODE_TORCH.equals(flashMode)) {
+		  	   // Turn on the flash
+		  	   if (flashModes.contains(params.FLASH_MODE_TORCH)) {
+		  	    params.setFlashMode(params.FLASH_MODE_TORCH);
+		  	    mCamera.setParameters(params);
+		  	   } else {
+		  	   }
+		  	  }
+		  	}
+		  	/**
+		  	  * ͨ关闭闪光灯
+		  	  */
+		  	public static void turnLightOff(Camera mCamera) {
+		  	  if (mCamera == null) {
+		  	   return;
+		  	  }
+		  	Parameters params = mCamera.getParameters();
+		  	  if (params == null) {
+		  	   return;
+		  	  }
+		  	  List<String> flashModes = params.getSupportedFlashModes();
+		  	  String flashMode = params.getFlashMode();
+		  	  // Check if camera flash exists
+		  	  if (flashModes == null) {
+		  	   return;
+		  	  }
+		  	  if (!params.FLASH_MODE_OFF.equals(flashMode)) {
+		  	   // Turn off the flash
+		  	   if (flashModes.contains(params.FLASH_MODE_OFF)) {
+		  	    params.setFlashMode(params.FLASH_MODE_OFF);
+		  	    mCamera.setParameters(params);
+		  	   } else {
+		  	    Log.e(TAG, "FLASH_MODE_OFF not supported");
+		  	   }
+		  	  }
+		  	}
 
 }

@@ -32,9 +32,9 @@ public class CameraVedio extends Activity {
           
         mMediaRecorder = new MediaRecorder();  
         surfaceView = (SurfaceView) this.findViewById(R.id.surfaceView);  
-        /*ÏÂÃæÉèÖÃSurface²»Î¬»¤×Ô¼ºµÄ»º³åÇø£¬¶øÊÇµÈ´ıÆÁÄ»µÄäÖÈ¾ÒıÇæ½«ÄÚÈİÍÆËÍµ½ÓÃ»§ÃæÇ°*/  
+        /*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Surfaceï¿½ï¿½Î¬ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÇµÈ´ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½È¾ï¿½ï¿½ï¿½æ½«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½ï¿½Ã»ï¿½ï¿½ï¿½Ç°*/  
         this.surfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);  
-//        this.surfaceView.getHolder().setFixedSize(320, 240);//ÉèÖÃ·Ö±æÂÊ  
+//        this.surfaceView.getHolder().setFixedSize(320, 240);//ï¿½ï¿½ï¿½Ã·Ö±ï¿½ï¿½ï¿½  
   
         ButtonClickListener listener = new ButtonClickListener();  
         Button stopButton = (Button) this.findViewById(R.id.stop);  
@@ -60,14 +60,14 @@ public class CameraVedio extends Activity {
                 switch (v.getId()) {  
                 case R.id.record:  
                 	mMediaRecorder.reset();  
-                	mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA); //´ÓÕÕÏà»ú²É¼¯ÊÓÆµ  
+                	mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¼ï¿½ï¿½ï¿½Æµ  
                 	mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);   
                 	mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4); 
                   
 //                    mediaRecorder.setVideoSize(320, 240);  
-//                    mediaRecorder.setVideoFrameRate(3); //Ã¿Ãë3Ö¡  
+//                    mediaRecorder.setVideoFrameRate(3); //Ã¿ï¿½ï¿½3Ö¡  
                  
-                	mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT); //ÉèÖÃÊÓÆµ±àÂë·½Ê½  
+                	mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ë·½Ê½  
                 	mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);  
 //                    File videoFile = new File(Environment.getExternalStorageDirectory(),
 //                    		System.currentTimeMillis()+".3gp");  
@@ -75,10 +75,10 @@ public class CameraVedio extends Activity {
                 	mMediaRecorder.setOutputFile(getOutputMediaFile(MEDIA_TYPE_VIDEO).toString());
                     
                 	mMediaRecorder.setPreviewDisplay(surfaceView.getHolder().getSurface());  
-                	mMediaRecorder.prepare();//Ô¤ÆÚ×¼±¸  
-                	mMediaRecorder.start();//¿ªÊ¼¿ÌÂ¼  
+                	mMediaRecorder.prepare();//Ô¤ï¿½ï¿½×¼ï¿½ï¿½  
+                	mMediaRecorder.start();//ï¿½ï¿½Ê¼ï¿½ï¿½Â¼  
                     Toast.makeText(getApplicationContext(), 
-                    		"¿ªÊ¼Â¼ÖÆ", Toast.LENGTH_SHORT).show();
+                    		"å¼€å§‹è®°å½•", Toast.LENGTH_SHORT).show();
                     record = true;  
                     break;  
   
@@ -87,7 +87,7 @@ public class CameraVedio extends Activity {
                     	mMediaRecorder.stop();  
                         record = false; 
                         Toast.makeText(getApplicationContext(), 
-                        		"Â¼ÖÆÍê³É£¬ÒÑ±£´æ", Toast.LENGTH_SHORT).show();
+                        		"åœæ­¢è®°å½•", Toast.LENGTH_SHORT).show();
                     }  
                     break;  
                 }  
