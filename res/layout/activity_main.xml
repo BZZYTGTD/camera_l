@@ -18,38 +18,52 @@
     android:layout_height="match_parent"
     />  
     
-	
-    
-     
-     <Button
-    android:id="@+id/vedio"
-    android:text="Vedio"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" 
-    android:layout_marginLeft="10dp"
-    
-    android:layout_alignParentBottom="true"   
-    android:layout_centerHorizontal="true"
-    />
-     
-      <Button 
-     android:id="@+id/light"
-  	android:text="On"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-     android:layout_marginLeft="10dp" 
-    android:layout_toRightOf="@id/vedio"  
-           android:layout_alignParentBottom="true"   
-     />
-    <Button
+	 <ImageButton
     android:id="@+id/button_capture"
     android:text="Capture"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_toLeftOf="@id/vedio"   
+     android:background="@drawable/c1"
     android:layout_alignParentBottom="true"  
+    android:layout_centerHorizontal="true"
     />
- 
+<!--  
+     <ImageButton
+         android:id="@+id/vedio"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+         android:layout_marginRight="23dp"
+         android:layout_toLeftOf="@+id/button_capture"
+         android:text="Vedio" 
+         android:background="@drawable/c2"
+         />-->
+		<ImageButton
+         android:id="@+id/Upload"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+         android:layout_marginRight="23dp"
+         android:layout_toLeftOf="@+id/button_capture"
+       
+         android:background="@drawable/c5"
+         />
+     <ImageButton
+         android:id="@+id/light"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+         android:layout_toRightOf="@+id/button_capture"
+         android:layout_marginLeft="16dp"
+         android:background="@drawable/c31"
+         />
 
+     <ImageButton
+         android:id="@+id/menu"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true"
+         android:background="@drawable/c6" />
 	
 </RelativeLayout>

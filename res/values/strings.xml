@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">camera</string>
+    <string name="app_name">Camera</string>
     <string name="action_settings">Settings</string>
     <string name="no_camera">No Camera</string>
     <string name="setScreenbright">设置屏幕亮度</string>
-
+    
+    <string name="create">Create a new user</string>
+    <string name="delete">Delete user</string>
+	<string name="help">Help</string> 
+    
 </resources>

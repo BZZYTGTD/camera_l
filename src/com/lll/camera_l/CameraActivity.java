@@ -5,8 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.lll.camera_l.R.id;
 
@@ -20,6 +23,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnKeyListener;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
@@ -31,7 +35,9 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -39,10 +45,19 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.SurfaceHolder.Callback;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class CameraActivity extends Activity 
 		implements Callback{
@@ -67,12 +82,15 @@ public class CameraActivity extends Activity
     long waitTime = 2000;    
 	long touchTime = 0;  
 	private int checkItem;
-	Button vedio;
-	Button captureButton;
-	Button light;
+	ImageButton vedio;
+	ImageButton captureButton;
+	ImageButton light;
+	ImageButton upload;
+	ImageButton menu;
 	private boolean isRecording = false;
+	private boolean lighton = false;
 	SurfaceView preview;
-    
+    LinearLayout layout_myview;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -92,13 +110,16 @@ public class CameraActivity extends Activity
         preview = (SurfaceView) findViewById(R.id.camera_preview);
         
         preview.setOnClickListener(myListener);
-        captureButton = (Button) findViewById(R.id.button_capture);
-        vedio = (Button)findViewById(R.id.vedio);
-        light = (Button)findViewById(R.id.light);
-       
+        captureButton = (ImageButton) findViewById(R.id.button_capture);
+//        vedio = (ImageButton)findViewById(R.id.vedio);
+        upload = (ImageButton)findViewById(R.id.Upload);
+        light = (ImageButton)findViewById(R.id.light);
+        menu = (ImageButton)findViewById(R.id.menu);
+        layout_myview = (LinearLayout)findViewById(R.id.layout_myview);
+        
         captureButton.setOnClickListener(myListener);
-
-        vedio.setOnClickListener(myListener);//vedio
+        menu.setOnClickListener(myListener);
+//        vedio.setOnClickListener(myListener);//vedio
         light.setOnClickListener(myListener);
         mHolder = preview.getHolder(); 
         
@@ -110,6 +131,8 @@ public class CameraActivity extends Activity
 //        System.out.println("mCameraCurrentlyLocked "+mCameraCurrentlyLocked);
         
         
+        
+        
 	}
 	 class MyClickListener implements OnClickListener, AutoFocusCallback{
 
@@ -119,30 +142,42 @@ public class CameraActivity extends Activity
 			 switch (v.getId()) {
 			 case R.id.button_capture:
 				  mCamera.takePicture(null, null, mPicture);
-	            Toast.makeText(getApplicationContext(), "Yes", Toast.LENGTH_SHORT).show();
-	            break;
+	             Toast.makeText(getApplicationContext(), "Yes", Toast.LENGTH_SHORT).show();
+	             break;
 			 case R.id.camera_preview:
 				 mCamera.autoFocus(this);//自动聚焦
 				 break;
-			 case R.id.vedio:
-				Intent intent=new Intent();
-				intent.setClass(CameraActivity.this, CameraVedio.class);
-				startActivity(intent);
-					break;
+//			 case R.id.vedio:
+//				Intent intent=new Intent();
+//				intent.setClass(CameraActivity.this, CameraVedio.class);
+//				startActivity(intent);
+//				break;
+				 
+			 case R.id.Upload:
+				 System.out.println("一键上传至##邮箱。。。未完成");
+				 break;
 			 case R.id.light:
-				 turnLightOn(mCamera);
-				 if(light.getText()=="On"){
-					 light.setText("Off");
-				 }else{ 
-					turnLightOff(mCamera);
-						 light.setText("On");
+				 
+				 if(!lighton){
+					 turnLightOn(mCamera);
+					 lighton = true;
+					 light.setBackgroundResource(R.drawable.c32);
+					 
+				 }else{
+					 turnLightOff(mCamera);
+					 light.setBackgroundResource(R.drawable.c31); 
 				 }
 				 break;
+			 case R.id.menu:
+				 initListView();
+				 break;
+				 
 				 default:
 					 break;
 			 }
 		}
 
+		
 		@Override
 		public void onAutoFocus(boolean success, Camera camera) {
 			if(success)  
@@ -160,6 +195,78 @@ public class CameraActivity extends Activity
 	 }
 	
 	
+	 LayoutInflater inflater = null;
+		View view = null;
+		List<Map<String, String>> list = null;
+		private ListView listViewMenu;
+		AlertDialog menuDialog;
+		TextView menu_item;
+		
+		private void initListView() {
+			
+			inflater = LayoutInflater.from(this);
+			view = inflater.inflate(R.layout.customlistview, null);
+			listViewMenu = (ListView) view.findViewById(R.id.mylistview);
+			
+			list = new ArrayList<Map<String, String>>();
+			Map<String, String> map = new HashMap<String,String>();
+			
+			map.put("item", this.getString(R.string.create));
+			list.add(map);
+			
+			map = new HashMap<String, String>();
+			map.put("item", this.getString(R.string.delete));
+			list.add(map);
+			
+			map = new HashMap<String, String>();
+			map.put("item", this.getString(R.string.help));
+			list.add(map);
+			
+			SimpleAdapter adapter = new SimpleAdapter(this, list, R.layout.item, new String[] { "item"}, new int[] { R.id.menu_item });
+			listViewMenu.setAdapter(adapter);
+			listViewMenu.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int position, long id) {
+					switch(position){
+					case 0:
+						Toast.makeText(getApplicationContext(), "create~~", Toast.LENGTH_SHORT).show();
+						break;
+					case 1:
+						Toast.makeText(getApplicationContext(), "delete~~", Toast.LENGTH_SHORT).show();
+						break;
+					case 2:
+						Toast.makeText(getApplicationContext(), "help~~", Toast.LENGTH_SHORT).show();
+						break;
+						default:
+							break;
+					}
+					
+				}
+				
+			});
+			
+			// 创建AlertDialog
+						menuDialog = new AlertDialog.Builder(this).create();
+						menuDialog.setView(view);
+						//设置对话框的显示位置
+						Window window = menuDialog.getWindow();     
+						window.setGravity(Gravity.TOP);   //window.setGravity(Gravity.BOTTOM);  
+						    
+						menuDialog.show();
+						menuDialog.setOnKeyListener(new OnKeyListener() {
+							public boolean onKey(DialogInterface dialog, int keyCode,
+									KeyEvent event) {
+								if (keyCode == KeyEvent.KEYCODE_MENU)// 监听按键
+									dialog.dismiss();
+								return false;
+							}
+						});
+						
+		}
+
+	 
 	 //˫���˳�
 	@Override  
 	public boolean onKeyDown(int keyCode, KeyEvent event) {  
@@ -243,7 +350,7 @@ public class CameraActivity extends Activity
 	    	getWindow().setAttributes(lp);
 			
 		} 
-    	}).show();//��ʾ�Ի��� 
+    	}).show();
     
 		
 	}
@@ -317,6 +424,7 @@ public class CameraActivity extends Activity
 	    public void onPictureTaken(byte[] data, Camera camera) {
 
 	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+	       
 	        if (pictureFile == null){
 //	            Log.d(TAG, "Error creating media file, check storage permissions: " +
 //	                e.getMessage());
@@ -333,7 +441,14 @@ public class CameraActivity extends Activity
 	            Log.d(TAG, "Error accessing file: " + e.getMessage());
 	        }
 
-		    // ���պ����¿�ʼԤ��
+	      //刷新图库
+	        Intent intent = new Intent(
+	                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+	        Uri uri = Uri.fromFile(mediaStorageDir);
+	        intent.setData(uri);
+	        sendBroadcast(intent);
+	        
+		    // 重新预览
 	        mCamera.stopPreview();
 	        mCamera.startPreview();
 	    }
@@ -391,13 +506,15 @@ public class CameraActivity extends Activity
 	      return Uri.fromFile(getOutputMediaFile(type));
 	}
 
+	private static File mediaStorageDir;
+	//存储目录在系统目录中dcim/MyCameraApp
 	/** Create a File for saving an image or video */
 	private static File getOutputMediaFile(int type){
 	    // To be safe, you should check that the SDCard is mounted
 	    // using Environment.getExternalStorageState() before doing this.
 
-	    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-	              Environment.DIRECTORY_PICTURES), "MyCameraApp");
+	     mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+	              Environment.DIRECTORY_DCIM), "MyCameraApp");
 	    // This location works best if you want the created images to be shared
 	    // between applications and persist after your app has been uninstalled.
 
@@ -421,7 +538,7 @@ public class CameraActivity extends Activity
 	    } else {
 	        return null;
 	    }
-
+	   
 	    return mediaFile;
 	}
 	
