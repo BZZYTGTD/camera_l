@@ -55,6 +55,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -91,6 +92,7 @@ public class CameraActivity extends Activity
 	private boolean lighton = false;
 	SurfaceView preview;
     LinearLayout layout_myview;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -232,6 +234,7 @@ public class CameraActivity extends Activity
 					switch(position){
 					case 0:
 						Toast.makeText(getApplicationContext(), "create~~", Toast.LENGTH_SHORT).show();
+						createNewUser();
 						break;
 					case 1:
 						Toast.makeText(getApplicationContext(), "delete~~", Toast.LENGTH_SHORT).show();
@@ -266,7 +269,31 @@ public class CameraActivity extends Activity
 						
 		}
 
-	 
+		public void createNewUser(){
+			 TableLayout info_user = (TableLayout)getLayoutInflater().inflate(R.layout.user, null);
+			 new AlertDialog.Builder(this).setView(info_user)
+			 .setPositiveButton("确定", new android.content.DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface dialog,int which) {
+					System.out.println("确定了之后怎么办？");
+					
+				}
+				 
+			 })
+			 .setNegativeButton("取消", new android.content.DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int which) {
+					//取消登录，不做任何事情。
+					
+				}
+				 
+			 }).create().show();
+				 
+			
+		 }
+		
 	 //˫���˳�
 	@Override  
 	public boolean onKeyDown(int keyCode, KeyEvent event) {  
@@ -292,29 +319,29 @@ public class CameraActivity extends Activity
 	
 	
 	
-	 @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// TODO Auto-generated method stub
-		 super.onCreateOptionsMenu(menu);
-		 getMenuInflater().inflate(R.menu.main,menu);
-		 return true;
-		
-	}
-
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
-		switch(item.getItemId())
-	    {
-	    case R.id.setScreenbright:
-	    	selectScreenBright();
-	    	//Toast.makeText(ColorLightActivity.this, "���ڲ˵�", Toast.LENGTH_LONG).show();
-	    	return true;
-	    }
-	    return false;
-	    
-	}
+//	 @Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// TODO Auto-generated method stub
+//		 super.onCreateOptionsMenu(menu);
+//		 getMenuInflater().inflate(R.menu.main,menu);
+//		 return true;
+//		
+//	}
+//
+//	
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		// TODO Auto-generated method stub
+//		switch(item.getItemId())
+//	    {
+//	    case R.id.setScreenbright:
+//	    	selectScreenBright();
+//	    	//Toast.makeText(ColorLightActivity.this, "���ڲ˵�", Toast.LENGTH_LONG).show();
+//	    	return true;
+//	    }
+//	    return false;
+//	    
+//	}
 
 	private void selectScreenBright() {
 		final String[] items = {"100%", "75%", "50%","25%"}; 
