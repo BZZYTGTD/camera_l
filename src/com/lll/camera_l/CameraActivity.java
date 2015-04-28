@@ -50,6 +50,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -92,6 +93,7 @@ public class CameraActivity extends Activity
 	private boolean lighton = false;
 	SurfaceView preview;
     LinearLayout layout_myview;
+  
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -197,12 +199,19 @@ public class CameraActivity extends Activity
 	 }
 	
 	
-	 LayoutInflater inflater = null;
-		View view = null;
+	 	LayoutInflater inflater = null;
+	 	 View view = null;
 		List<Map<String, String>> list = null;
-		private ListView listViewMenu;
+		 ListView listViewMenu;
 		AlertDialog menuDialog;
-		TextView menu_item;
+		 TextView menu_item;
+		private EditText name;  
+		private EditText age; 
+		private EditText sex; 
+		private static String namestring;
+		private static String agestring;
+		private static String sexstring;
+		
 		
 		private void initListView() {
 			
@@ -270,14 +279,22 @@ public class CameraActivity extends Activity
 		}
 
 		public void createNewUser(){
+			
 			 TableLayout info_user = (TableLayout)getLayoutInflater().inflate(R.layout.user, null);
+			 name = (EditText)info_user.findViewById(R.id.name);
+			 age = (EditText)info_user.findViewById(R.id.age);
+			 sex = (EditText)info_user.findViewById(R.id.sex);
+			 
 			 new AlertDialog.Builder(this).setView(info_user)
 			 .setPositiveButton("确定", new android.content.DialogInterface.OnClickListener(){
 
 				@Override
 				public void onClick(DialogInterface dialog,int which) {
-					System.out.println("确定了之后怎么办？");
-					
+					namestring = name.getText().toString().trim();
+					agestring = age.getText().toString();
+					sexstring = sex.getText().toString();
+					System.out.println("namestring"+namestring+"agestring"+agestring+"sexstring"+sexstring);
+					newUsers = true;
 				}
 				 
 			 })
@@ -342,7 +359,8 @@ public class CameraActivity extends Activity
 //	    return false;
 //	    
 //	}
-
+	
+	//设置屏幕亮度，实际上并没有用到该方法
 	private void selectScreenBright() {
 		final String[] items = {"100%", "75%", "50%","25%"}; 
     	new AlertDialog.Builder(this) 
@@ -534,21 +552,26 @@ public class CameraActivity extends Activity
 	}
 
 	private static File mediaStorageDir;
+	private static boolean newUsers = false;
 	//存储目录在系统目录中dcim/MyCameraApp
 	/** Create a File for saving an image or video */
 	private static File getOutputMediaFile(int type){
 	    // To be safe, you should check that the SDCard is mounted
 	    // using Environment.getExternalStorageState() before doing this.
-
+		if(!newUsers){
 	     mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
 	              Environment.DIRECTORY_DCIM), "MyCameraApp");
+	     }else{
+	    	 mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+		              Environment.DIRECTORY_DCIM), namestring+"_"+sexstring+"_"+agestring);
+	     }
 	    // This location works best if you want the created images to be shared
 	    // between applications and persist after your app has been uninstalled.
 
 	    // Create the storage directory if it does not exist
 	    if (! mediaStorageDir.exists()){
 	        if (! mediaStorageDir.mkdirs()){
-	            Log.d("MyCameraApp", "failed to create directory");
+	            Log.d("mediaStorageDir", "failed to create directory");
 	            return null;
 	        }
 	    }
