@@ -3,6 +3,7 @@ package com.lll.camera_l;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -203,7 +204,11 @@ public class CameraActivity extends Activity
 	 	 View view = null;
 		List<Map<String, String>> list = null;
 		 ListView listViewMenu;
+		 View fileView;
+		 ListView fileListView;
+		 TextView file_item;
 		AlertDialog menuDialog;
+		AlertDialog filesNameDialog;
 		 TextView menu_item;
 		private EditText name;  
 		private EditText age; 
@@ -242,11 +247,12 @@ public class CameraActivity extends Activity
 						int position, long id) {
 					switch(position){
 					case 0:
-						Toast.makeText(getApplicationContext(), "create~~", Toast.LENGTH_SHORT).show();
 						createNewUser();
 						break;
 					case 1:
 						Toast.makeText(getApplicationContext(), "delete~~", Toast.LENGTH_SHORT).show();
+						deleteUsers();
+						
 						break;
 					case 2:
 						Toast.makeText(getApplicationContext(), "help~~", Toast.LENGTH_SHORT).show();
@@ -293,7 +299,6 @@ public class CameraActivity extends Activity
 					namestring = name.getText().toString().trim();
 					agestring = age.getText().toString();
 					sexstring = sex.getText().toString();
-					System.out.println("namestring"+namestring+"agestring"+agestring+"sexstring"+sexstring);
 					newUsers = true;
 				}
 				 
@@ -302,7 +307,7 @@ public class CameraActivity extends Activity
 
 				@Override
 				public void onClick(DialogInterface arg0, int which) {
-					//取消登录，不做任何事情。
+					//取消新建用户，不做任何事情。
 					
 				}
 				 
@@ -310,6 +315,70 @@ public class CameraActivity extends Activity
 				 
 			
 		 }
+		
+		public void deleteUsers(){
+			ListFilesName();
+		}
+		
+		 private static File[] currentFiles;
+		//制定目录下所有新建用户文件名
+		public void ListFilesName() {
+			//首先是要得到music文件的路径
+			File file= new File(Environment.getExternalStoragePublicDirectory(
+		              Environment.DIRECTORY_DCIM).getPath());
+			 if (!file.exists()){
+			        if (!file.mkdirs()){
+			            Log.d("file", "failed to create directory");
+			        }
+			    }
+			List<Map<String,Object>> list= new ArrayList<Map<String,Object>>();
+			inflater = LayoutInflater.from(this);
+			fileView = inflater.inflate(R.layout.filelistview, null);
+			fileListView = (ListView) fileView.findViewById(R.id.filelistview);
+			
+			currentFiles = file.listFiles(new customfilter());
+			//将所有的文件加入到一个list文件中
+			if(file.list(new customfilter()).length>0){
+				
+				for (int i = 0; i < currentFiles.length; i++){
+					Map<String,Object> map=new HashMap<String, Object>();
+					String s = currentFiles[i].getName();
+				   map.put("filename",s);
+				   list.add(map);
+				}
+			}
+			SimpleAdapter sa= new SimpleAdapter(this, list, 
+					R.layout.fileitem, new String[]{"filename"}, new int[]{R.id.file_item} );
+			fileListView.setAdapter(sa);
+			filesNameDialog = new AlertDialog.Builder(this).create();
+			filesNameDialog.setView(fileView);
+			//设置对话框的显示位置
+			Window window = filesNameDialog.getWindow();     
+			window.setGravity(Gravity.TOP);   //window.setGravity(Gravity.BOTTOM);  
+			    
+			filesNameDialog.show();
+			filesNameDialog.setOnKeyListener(new OnKeyListener() {
+				public boolean onKey(DialogInterface dialog, int keyCode,
+						KeyEvent event) {
+					if (keyCode == KeyEvent.KEYCODE_MENU)// 监听按键
+						dialog.dismiss();
+					return false;
+				}
+			});
+		}
+		
+		// 用来去筛选出特定的文件夹
+		class customfilter implements FilenameFilter {
+			/*
+			 * accept方法的两个参数的意义： dir：文件夹对像，也就是你原来调用list方法的File文件夹对像 name：当前判断的文件名，
+			 * 这个文件名就是文件夹下面的文件
+			 * 返回：这个文件名是否符合条件，当为true时，list和listFiles方法会把这个文件加入到返回的数组里，false时则不会加入
+			 */
+			public boolean accept(File dir, String filename) {
+				// TODO Auto-generated method stub
+				return (filename.endsWith("files"));
+			}
+		}
 		
 	 //˫���˳�
 	@Override  
@@ -560,10 +629,10 @@ public class CameraActivity extends Activity
 	    // using Environment.getExternalStorageState() before doing this.
 		if(!newUsers){
 	     mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-	              Environment.DIRECTORY_DCIM), "MyCameraApp");
+	              Environment.DIRECTORY_DCIM), "MyCameraApp"+"_"+"files");
 	     }else{
 	    	 mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-		              Environment.DIRECTORY_DCIM), namestring+"_"+sexstring+"_"+agestring);
+		              Environment.DIRECTORY_DCIM), namestring+"_"+sexstring+"_"+agestring+"_"+"files");
 	     }
 	    // This location works best if you want the created images to be shared
 	    // between applications and persist after your app has been uninstalled.
