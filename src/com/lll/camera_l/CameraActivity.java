@@ -365,6 +365,46 @@ public class CameraActivity extends Activity
 					return false;
 				}
 			});
+			
+			fileListView.setOnItemClickListener(new OnItemClickListener(){
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					//判断是不是文件夹
+					boolean a = currentFiles[position].isDirectory();
+					if(currentFiles[position].isDirectory()){
+						//弹出对话框，问是否删除这个文件？
+						deleteuserDialog();
+						dposition = position;
+					}
+				}
+				
+			});
+		}
+		private static int dposition;
+		public void deleteuserDialog(){
+			LinearLayout delete_user = (LinearLayout)getLayoutInflater().inflate(R.layout.isdelete, null);
+			 
+			 new AlertDialog.Builder(this)
+			.setView(delete_user)
+			.setPositiveButton("Yes", new android.content.DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface dialog,
+						int which) {
+					//没能完全删除是因为这里是文件夹，要删除所有的文件才能删除文件夹，删除所有内容就可以了
+					currentFiles[dposition].delete();
+				}
+				 
+			 })
+			 .setNegativeButton("No", new android.content.DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int which) {
+				}
+				 
+			 }).create().show();
 		}
 		
 		// 用来去筛选出特定的文件夹

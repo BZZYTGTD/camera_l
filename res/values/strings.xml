@@ -9,5 +9,5 @@
     <string name="create">Create a new user</string>
     <string name="delete">Delete user</string>
 	<string name="help">Help</string> 
-    
+    <string name="deletefile">Are you sure to delete this file?</string>
 </resources>
