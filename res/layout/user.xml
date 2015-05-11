@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/info_user"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    <TableRow >
+      <TextView 
+         
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="姓名："
+          android:textSize="15sp"
+          />  
+          <EditText
+          android:id="@+id/name"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:hint="请填写您的姓名"
+          android:selectAllOnFocus="true"/>
+    </TableRow>
+    
+     <TableRow >
+      <TextView 
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="性别："
+          android:textSize="15sp"
+          />  
+          <EditText
+               android:id="@+id/sex"
+         android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:hint="请填写您的性别"
+          />
+    </TableRow>
+    
+      <TableRow >
+      <TextView 
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="年龄："
+          android:textSize="15sp"
+          />  
+          <EditText
+              android:id="@+id/age"
+         android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:hint="请填写您的年龄："
+          android:phoneNumber="true"
+          />
+    </TableRow>
+    
+
+    
+</TableLayout>
