@@ -51,6 +51,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -284,6 +285,7 @@ public class CameraActivity extends Activity
 						
 		}
 
+		
 		public void createNewUser(){
 			
 			 TableLayout info_user = (TableLayout)getLayoutInflater().inflate(R.layout.user, null);
@@ -300,6 +302,7 @@ public class CameraActivity extends Activity
 					agestring = age.getText().toString();
 					sexstring = sex.getText().toString();
 					newUsers = true;
+					
 				}
 				 
 			 })
@@ -318,7 +321,8 @@ public class CameraActivity extends Activity
 
 		private static File[] currentFiles;
 		private static int dposition;
-		private SimpleAdapter sa;
+		public SimpleAdapter sa ;
+		
 		public void deleteUsers(){
 			
 			//制定目录下所有新建用户文件名
@@ -376,17 +380,17 @@ public class CameraActivity extends Activity
 						//弹出对话框，问是否删除这个文件？
 						dposition = position;
 						deleteuserDialog();
-						//添加下面这句之后，就成功通知listview删除文件夹并且图库中文件缩略图也没有了
-						sa.notifyDataSetChanged();
 					}
 				}
 				
 			});
 		
-			
 		}
 		
+		
+		
 		public void deleteuserDialog(){
+			
 			LinearLayout delete_user = (LinearLayout)getLayoutInflater().inflate(R.layout.isdelete, null);
 			 
 			 new AlertDialog.Builder(this)
@@ -408,6 +412,11 @@ public class CameraActivity extends Activity
 //						              Environment.DIRECTORY_DCIM).getPath());
 						}  
 						currentFiles[dposition].delete();  
+						//添加下面这句之后，就成功通知listview删除文件夹并且图库中文件缩略图也没有了
+						
+						sa.notifyDataSetChanged();
+						fileListView.setAdapter(sa);
+						
 				}
 				 
 			 })
