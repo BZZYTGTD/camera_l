@@ -28,6 +28,8 @@
           
             <!-- 
         <activity android:name="com.lll.camera_l.CameraVedio"/> -->
+        
+      
     </application>
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" />

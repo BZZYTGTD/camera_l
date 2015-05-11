@@ -19,6 +19,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore.Images.Media;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -94,7 +95,7 @@ public class CameraActivity extends Activity
 	private boolean lighton = false;
 	SurfaceView preview;
     LinearLayout layout_myview;
-  
+//  private static UserManager mUserManager;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +170,7 @@ public class CameraActivity extends Activity
 					 light.setBackgroundResource(R.drawable.c32);
 					 
 				 }else{
+					 lighton = false;
 					 turnLightOff(mCamera);
 					 light.setBackgroundResource(R.drawable.c31); 
 				 }
@@ -250,9 +252,7 @@ public class CameraActivity extends Activity
 						createNewUser();
 						break;
 					case 1:
-						Toast.makeText(getApplicationContext(), "delete~~", Toast.LENGTH_SHORT).show();
 						deleteUsers();
-						
 						break;
 					case 2:
 						Toast.makeText(getApplicationContext(), "help~~", Toast.LENGTH_SHORT).show();
@@ -315,14 +315,13 @@ public class CameraActivity extends Activity
 				 
 			
 		 }
-		
+
+		private static File[] currentFiles;
+		private static int dposition;
+		private SimpleAdapter sa;
 		public void deleteUsers(){
-			ListFilesName();
-		}
-		
-		 private static File[] currentFiles;
-		//制定目录下所有新建用户文件名
-		public void ListFilesName() {
+			
+			//制定目录下所有新建用户文件名
 			//首先是要得到music文件的路径
 			File file= new File(Environment.getExternalStoragePublicDirectory(
 		              Environment.DIRECTORY_DCIM).getPath());
@@ -347,7 +346,7 @@ public class CameraActivity extends Activity
 				   list.add(map);
 				}
 			}
-			SimpleAdapter sa= new SimpleAdapter(this, list, 
+			 sa= new SimpleAdapter(this, list, 
 					R.layout.fileitem, new String[]{"filename"}, new int[]{R.id.file_item} );
 			fileListView.setAdapter(sa);
 			filesNameDialog = new AlertDialog.Builder(this).create();
@@ -373,16 +372,20 @@ public class CameraActivity extends Activity
 						int position, long id) {
 					//判断是不是文件夹
 					boolean a = currentFiles[position].isDirectory();
-					if(currentFiles[position].isDirectory()){
+					if(a){
 						//弹出对话框，问是否删除这个文件？
-						deleteuserDialog();
 						dposition = position;
+						deleteuserDialog();
+						//添加下面这句之后，就成功通知listview删除文件夹并且图库中文件缩略图也没有了
+						sa.notifyDataSetChanged();
 					}
 				}
 				
 			});
+		
+			
 		}
-		private static int dposition;
+		
 		public void deleteuserDialog(){
 			LinearLayout delete_user = (LinearLayout)getLayoutInflater().inflate(R.layout.isdelete, null);
 			 
@@ -394,7 +397,17 @@ public class CameraActivity extends Activity
 				public void onClick(DialogInterface dialog,
 						int which) {
 					//没能完全删除是因为这里是文件夹，要删除所有的文件才能删除文件夹，删除所有内容就可以了
-					currentFiles[dposition].delete();
+						String[] childs = currentFiles[dposition].list();  
+						if (childs == null || childs.length == 0) {  
+						         currentFiles[dposition].delete();  
+						          return;  
+						 }  
+						for (int i = 0; i < childs.length; i++) {  
+							new File(currentFiles[dposition], childs[i]).delete(); 
+//							getContentResolver.delete(Media.EXTERNAL_CONTENT_URI, Media.DATA + "=?",Environment.getExternalStoragePublicDirectory(
+//						              Environment.DIRECTORY_DCIM).getPath());
+						}  
+						currentFiles[dposition].delete();  
 				}
 				 
 			 })
