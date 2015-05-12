@@ -126,6 +126,7 @@ public class CameraActivity extends Activity
         
         captureButton.setOnClickListener(myListener);
         menu.setOnClickListener(myListener);
+        upload.setOnClickListener(myListener);
 //        vedio.setOnClickListener(myListener);//vedio
         light.setOnClickListener(myListener);
         mHolder = preview.getHolder(); 
@@ -141,6 +142,8 @@ public class CameraActivity extends Activity
         
         
 	}
+	
+	private String subject = "MyCameraApp_files";
 	 class MyClickListener implements OnClickListener, AutoFocusCallback{
 
 		@Override
@@ -161,7 +164,32 @@ public class CameraActivity extends Activity
 //				break;
 				 
 			 case R.id.Upload:
-				 System.out.println("一键上传至##邮箱。。。未完成");
+				 Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE); 
+				 String[] tos = { "1322048858@qq.com" }; 
+				 String[] ccs = { "1322048858@qq.com" }; 
+				 intent.putExtra(Intent.EXTRA_EMAIL, tos); //接收者
+				 intent.putExtra(Intent.EXTRA_CC, ccs);//密送者 
+				 intent.putExtra(Intent.EXTRA_TEXT, "The images of the "+ subject); //正文内容
+				 if(!newUsers){
+					 subject = "MyCameraApp_files";
+				 }else{
+					 subject = namestring+"_"+sexstring+"_"+agestring+"_"+"files";
+				 }
+				 intent.putExtra(Intent.EXTRA_SUBJECT, subject); //主题
+
+				 ArrayList<Uri> imageUris = new ArrayList<Uri>(); 
+				 System.out.println("file:/mediaStorageDir   :    "+mediaStorageDir);
+				 imageUris.add(Uri.fromFile(mediaStorageDir));
+//				 imageUris.add(Uri.parse("/storage/emulated/0/DCIM/MyCameraApp_files/IMG_20150512_095211.jpg")); 
+				 intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris); 
+				 intent.setType("image/*"); 
+//				     /storage/emulated/0/DCIM/MyCameraApp_files
+
+//				 intent.setType("message/rfc882"); 
+				 Intent.createChooser(intent, "Choose Email Client"); 
+				 startActivity(intent); 
+
+				 
 				 break;
 			 case R.id.light:
 				 
@@ -416,7 +444,11 @@ public class CameraActivity extends Activity
 						
 						sa.notifyDataSetChanged();
 						fileListView.setAdapter(sa);
-						
+						 Intent intent = new Intent(
+					                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+					        Uri uri = Uri.fromFile(mediaStorageDir);
+					        intent.setData(uri);
+					        sendBroadcast(intent);
 				}
 				 
 			 })
@@ -682,7 +714,8 @@ public class CameraActivity extends Activity
 	      return Uri.fromFile(getOutputMediaFile(type));
 	}
 
-	private static File mediaStorageDir;
+	private static File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DCIM), "MyCameraApp"+"_"+"files");
 	private static boolean newUsers = false;
 	//存储目录在系统目录中dcim/MyCameraApp
 	/** Create a File for saving an image or video */
