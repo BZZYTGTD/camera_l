@@ -169,14 +169,14 @@ public class CameraActivity extends Activity
 				 String[] ccs = { "1322048858@qq.com" }; 
 				 intent.putExtra(Intent.EXTRA_EMAIL, tos); //接收者
 				 intent.putExtra(Intent.EXTRA_CC, ccs);//密送者 
-				 intent.putExtra(Intent.EXTRA_TEXT, "The images of the "+ subject); //正文内容
+				 
 				 if(!newUsers){
 					 subject = "MyCameraApp_files";
 				 }else{
 					 subject = namestring+"_"+sexstring+"_"+agestring+"_"+"files";
 				 }
 				 intent.putExtra(Intent.EXTRA_SUBJECT, subject); //主题
-
+				 intent.putExtra(Intent.EXTRA_TEXT, "The images of the "+ subject); //正文内容
 				 ArrayList<Uri> imageUris = new ArrayList<Uri>(); 
 				 System.out.println("file:/mediaStorageDir   :    "+mediaStorageDir);
 				 imageUris.add(Uri.fromFile(mediaStorageDir));
