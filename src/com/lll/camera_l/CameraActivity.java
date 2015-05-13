@@ -189,7 +189,6 @@ public class CameraActivity extends Activity
 				 Intent.createChooser(intent, "Choose Email Client"); 
 				 startActivity(intent); 
 
-				 
 				 break;
 			 case R.id.light:
 				 
@@ -350,7 +349,7 @@ public class CameraActivity extends Activity
 		private static File[] currentFiles;
 		private static int dposition;
 		public SimpleAdapter sa ;
-		
+		private List<Map<String,Object>> d_list;
 		public void deleteUsers(){
 			
 			//制定目录下所有新建用户文件名
@@ -362,7 +361,7 @@ public class CameraActivity extends Activity
 			            Log.d("file", "failed to create directory");
 			        }
 			    }
-			List<Map<String,Object>> list= new ArrayList<Map<String,Object>>();
+			 d_list= new ArrayList<Map<String,Object>>();
 			inflater = LayoutInflater.from(this);
 			fileView = inflater.inflate(R.layout.filelistview, null);
 			fileListView = (ListView) fileView.findViewById(R.id.filelistview);
@@ -375,10 +374,10 @@ public class CameraActivity extends Activity
 					Map<String,Object> map=new HashMap<String, Object>();
 					String s = currentFiles[i].getName();
 				   map.put("filename",s);
-				   list.add(map);
+				   d_list.add(map);
 				}
 			}
-			 sa= new SimpleAdapter(this, list, 
+			 sa= new SimpleAdapter(this, d_list, 
 					R.layout.fileitem, new String[]{"filename"}, new int[]{R.id.file_item} );
 			fileListView.setAdapter(sa);
 			filesNameDialog = new AlertDialog.Builder(this).create();
@@ -441,7 +440,7 @@ public class CameraActivity extends Activity
 						}  
 						currentFiles[dposition].delete();  
 						//添加下面这句之后，就成功通知listview删除文件夹并且图库中文件缩略图也没有了
-						
+						d_list.remove(dposition);
 						sa.notifyDataSetChanged();
 						fileListView.setAdapter(sa);
 						 Intent intent = new Intent(
