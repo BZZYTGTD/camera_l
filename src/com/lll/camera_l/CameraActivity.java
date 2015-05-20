@@ -764,7 +764,49 @@ public class CameraActivity extends Activity
 	        releaseCamera();              // release the camera immediately on pause event
 	    }
 
-	    private void releaseMediaRecorder(){
+	  
+	  
+	    @Override
+	    protected void onResume() {
+	    	 super.onResume();
+		     System.out.println("onResume");
+
+		        // Open the default i.e. the first rear facing camera.mCamera is not null
+		        mCamera = getCameraInstance(mCameraCurrentlyLocked);
+		        if(mCamera != null){
+		        	params = mCamera.getParameters();
+		    	      List<Camera.Size> psizes = params.getSupportedPictureSizes(); 
+			            Camera.Size pcs = (Camera.Size) psizes.get(0); 
+			            psizeheight = pcs.height; 
+			            psizewidth = pcs.width;
+			            params.setPictureSize((int)psizewidth, (int)psizeheight);
+			            float n = psizeheight/psizewidth;
+			          List<Camera.Size> sizes = params.getSupportedPreviewSizes(); 
+			         for (int i = 0; i < sizes.size(); i++) { 
+			            Camera.Size cs = (Camera.Size) sizes.get(i); 
+			             sizeheight = cs.height; 
+			             sizewidth = cs.width; 
+			             if(n == (sizeheight/ sizewidth)){
+			            	params.setPreviewSize((int)sizewidth, (int)sizeheight);
+			            	break;
+			             }
+			         }
+			     params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+		         params.setRotation(90);
+				 mCamera.setParameters(params);
+				 mCamera.setDisplayOrientation(90);
+		        }
+		        try {
+					mCamera.setPreviewDisplay(mHolder);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        mCamera.startPreview();
+	    }
+
+
+		private void releaseMediaRecorder(){
 	        if (mMediaRecorder != null) {
 	            mMediaRecorder.reset();   // clear recorder configuration
 	            mMediaRecorder.release();// release the recorder object
