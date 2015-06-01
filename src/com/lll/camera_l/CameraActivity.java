@@ -92,6 +92,8 @@ public class CameraActivity extends Activity
 	ImageButton light;
 	ImageButton upload;
 	ImageButton menu;
+	ImageButton jia;
+	ImageButton jian;
 	private boolean isRecording = false;
 	private boolean lighton = false;
 	SurfaceView preview;
@@ -122,6 +124,8 @@ public class CameraActivity extends Activity
         upload = (ImageButton)findViewById(R.id.Upload);
         light = (ImageButton)findViewById(R.id.light);
         menu = (ImageButton)findViewById(R.id.menu);
+        jia = (ImageButton)findViewById(R.id.jia);
+        jian = (ImageButton)findViewById(R.id.jian);
         layout_myview = (LinearLayout)findViewById(R.id.layout_myview);
         
         captureButton.setOnClickListener(myListener);
@@ -129,6 +133,9 @@ public class CameraActivity extends Activity
         upload.setOnClickListener(myListener);
 //        vedio.setOnClickListener(myListener);//vedio
         light.setOnClickListener(myListener);
+        jia.setOnClickListener(myListener);
+        jian.setOnClickListener(myListener);
+        
         mHolder = preview.getHolder(); 
         
         mHolder.addCallback(this); 
@@ -206,7 +213,20 @@ public class CameraActivity extends Activity
 			 case R.id.menu:
 				 initListView();
 				 break;
-				 
+			 case R.id.jia:
+				 if(mZoom <= params.getMaxZoom() - 6){
+						mZoom = mZoom + 6;  
+						params.setZoom(mZoom);
+						mCamera.setParameters(params);
+					}
+				 break;
+			 case R.id.jian:
+				 if(mZoom >= 0 && mZoom <= params.getMaxZoom()){
+						mZoom = mZoom - 6;  
+						params.setZoom(mZoom);
+						mCamera.setParameters(params);
+					}
+				 break;
 				 default:
 					 break;
 			 }
@@ -832,6 +852,8 @@ public class CameraActivity extends Activity
 		private float psizewidth;
 		private float sizeheight;
 		private float sizewidth;
+		private int mZoom;
+		private boolean zoomFlag = false;
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
@@ -883,6 +905,14 @@ public class CameraActivity extends Activity
 		            	break;
 		             }
 		         }
+		         if(mCamera.getParameters().isZoomSupported()){
+		        	if(zoomFlag){
+		        		params.setZoom(mZoom);  //value 的值范围为 0~getMaxZoom()
+		        	}
+//		        	 mZoom = params.getMaxZoom();
+//		        	 System.out.println("mZoom= "+ mZoom );//30
+		         }
+	              
 	             params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 	             params.setRotation(90);
 	             mCamera.setParameters(params);
@@ -917,7 +947,6 @@ public class CameraActivity extends Activity
 		}
 
 
-
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
 			System.out.println("surfaceCreated");
@@ -942,7 +971,8 @@ public class CameraActivity extends Activity
 		            	break;
 		             }
 		         }
-//	    	      params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+		         params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+	             params.setRotation(90);
 	              mCamera.setParameters(params);
 	    	   }
 	    	try {
